@@ -34,7 +34,7 @@ readCGM = function(files) {
         newTS = format(newTS, format = "%d/%m/%Y %H:%M")
         datasets[[i]]$Hora[tsRevise] = newTS
         # remove extra rows if any
-        extra_rows = which(datasets[[i]]$Hora == "" & datasets[[i]]$Histórico.glucosa..mg.dL. == "")
+        # extra_rows = which(datasets[[i]]$Hora == "" & datasets[[i]]$Histórico.glucosa..mg.dL. == "")
         if (length(extra_rows) > 0) datasets[[i]] = datasets[[i]][-extra_rows,]
       }
 
