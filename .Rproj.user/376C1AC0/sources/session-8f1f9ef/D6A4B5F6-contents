@@ -1,7 +1,0 @@
-
-CGManalyzer(datadir = "D:/EXTREME/CGM_PRE_EXTREME/",
-            outputdir = "D:/EXTREME/output/CGM/1-baseline/")
-
-
-CGManalyzer(datadir = "D:/EXTREME/CGM_POST_EXTREME/",
-            outputdir = "D:/EXTREME/output/CGM/2-followup/")
