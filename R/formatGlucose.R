@@ -5,7 +5,7 @@
 #'
 #' @return Glucose formatted
 #' @export
-#'
+#' @importFrom data.table nafill
 formatGlucose = function(data, glucCol = NULL) {
   if (is.null(glucCol)) {
     glucCol = grep("glucos", colnames(data),
@@ -17,9 +17,20 @@ formatGlucose = function(data, glucCol = NULL) {
       }
       glucCol = glucCol[which.max(glucCol_lengths)]
     }
-
-    # check units
+    # remove header
     glucose = data[, glucCol]
+    if (is.na(as.numeric(glucose[1])) &
+        as.numeric(glucose[6]) == 250 &
+        as.numeric(glucose[7]) == 70 &
+        is.na(as.numeric(glucose[8]))) {
+      glucose = glucose[-c(1:8)]
+    }
+    # impute missing values if needed
+    toImpute = grep("Nivel bajo", glucose)
+    glucose[toImpute] = NA
+    glucose = as.numeric(glucose)
+    glucose = data.table::nafill(glucose, "locf")
+    # check units
     if (is.character(glucose)) glucose = gsub(",", ".", glucose, fixed = TRUE)
     glucose = as.numeric(glucose)
     if (grepl("mmol/l", glucCol, ignore.case = TRUE)) glucose = glucose*18.0182

@@ -8,9 +8,18 @@
 #'
 formatTime = function(data, timeCol = NULL) {
   if (is.null(timeCol)) {
-    timeCol = grep("time|tiempo|date|fecha|hora", colnames(data),
+    timeCol = grep("time|tiempo|date|fecha|hora|temporal", colnames(data),
                    ignore.case = TRUE, value = TRUE)
     if (length(timeCol) > 1) {
+      # keep the one formatted as POSIX
+      timeCol_class = rep(NA, length(timeCol))
+      for (timeCol_i in 1:length(timeCol)) {
+        timeCol_class[timeCol_i] = class(data[, timeCol[timeCol_i]])[1]
+      }
+      timeCol = timeCol[which(timeCol_class == "POSIXct")]
+    }
+    if (length(timeCol) > 1) {
+      # keep the one with more distinct values
       timeCol_lengths = rep(NA, length(timeCol))
       for (timeCol_i in 1:length(timeCol)) {
         timeCol_lengths[timeCol_i] = length(table(data[, timeCol[timeCol_i]]))
@@ -28,15 +37,25 @@ formatTime = function(data, timeCol = NULL) {
       timestamp = strptime(data[, timeCol],
                            format = "%Y/%m/%d %H:%M", tz = "GMT")
     }
-  }
-  # check and correct timestamp
-  if (any(is.na(timestamp))) {
-    timestamp = strptime(data[, timeCol],
-                         format = "%Y/%m/%d %H:%M", tz = "GMT")
+  } else if ("POSIXct" %in% class(data[, timeCol])) {
+    timestamp = data[, timeCol]
   }
 
-  if (any(is.na(timestamp))) {
-    timestamp = data[, timeCol]
+  # check and correct timestamp
+  if (!"POSIXct" %in% class(timestamp)) {
+    if (any(is.na(timestamp))) {
+      timestamp = strptime(data[, timeCol],
+                           format = "%Y/%m/%d %H:%M", tz = "GMT")
+    }
+
+    if (any(is.na(timestamp))) {
+      timestamp = data[, timeCol]
+    }
+  } else {
+    if (any(is.na.POSIXlt(timestamp))) {
+      NAs = which(is.na.POSIXlt(timestamp))
+      timestamp = timestamp[-NAs]
+    }
   }
 
   # round to minutes and convert to character

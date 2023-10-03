@@ -41,7 +41,8 @@ CGManalyzer = function(datadir = NULL, outputdir = NULL,
   for (i in 1:length(FILES)) {
     id_unlist = unlist(strsplit(basename(FILES[i]), split = "_"))
     id = id_unlist[2]
-    if (suppressWarnings(is.na(as.numeric(id)))) id = id_unlist[1]
+    if (suppressWarnings(is.na(as.numeric(id))) &
+        !grepl("ASP|MG|NF|NVS", id)) id = id_unlist[1]
     ids[i] = id
   }
   ids = unique(ids)
@@ -61,24 +62,39 @@ CGManalyzer = function(datadir = NULL, outputdir = NULL,
 
     # 1 - read CGM file/s
     data = as.data.frame(readCGM(files = files2read))
+    if (nrow(data) < 10) {
+      cat("skipped because insufficient data collected")
+      next
+    }
 
     # 2 - format timestamp
     timestamp = formatTime(data, timeCol = timeCol)
 
     # 3 - format glucose
     glucose = formatGlucose(data, glucCol = glucCol)
+    # adjustment for PREFIT UP data (first rows )
+    if (length(glucose) > length(timestamp)) {
+      diff = length(glucose) - length(timestamp)
+      glucose = glucose[(diff + 1):length(glucose)]
+    }
 
     # 4 - mark scan and time series
     if (is.null(typeCol)) {
       typeCol = grep("type|tipo", colnames(data),
                      ignore.case = TRUE, value = TRUE)
+      typeCol = typeCol[-grep("evento", typeCol)]
     }
     # categories
-    ts = which(data[, typeCol] == 0)
-    scans = which(data[, typeCol] == 1)
+    if (length(typeCol) > 0) {
+      ts = which(data[, typeCol] == 0)
+      scans = which(data[, typeCol] == 1)
 
-    # reset typecol
-    typeCol = typeCol_bu
+      # reset typecol
+      typeCol = typeCol_bu
+    } else {
+      scans = c()
+      ts = 1:length(glucose)
+    }
 
     # 5 - cutoffs
     glucRanges = cut(glucose, breaks = c(0, 54, 70, 140, 180, 250, Inf), right = F)

@@ -6,6 +6,7 @@
 #' @export
 #'
 #' @importFrom openxlsx read.xlsx
+#' @importFrom data.table fread
 readCGM = function(files) {
 
   # loop through files to load data -------
@@ -41,6 +42,12 @@ readCGM = function(files) {
 
     } else if (format == "xlsx") {
       datasets[[i]] = openxlsx::read.xlsx(files[i], sheet = 1, startRow = 3)
+      # colnames similar to .txt files
+      colnames(datasets[[i]]) = gsub(".", " ", colnames(datasets[[i]]), fixed = TRUE)
+    } else if (format == "csv") {
+      datasets[[i]] = suppressWarnings(data.table::fread(files[i],
+                                                         data.table = FALSE,
+                                                         verbose = FALSE))
       # colnames similar to .txt files
       colnames(datasets[[i]]) = gsub(".", " ", colnames(datasets[[i]]), fixed = TRUE)
     } else {
