@@ -6,7 +6,9 @@ Author: Jairo H. Migueles <jairo@jhmigueles.com>
 Maintainer: Jairo H. Migueles <jairo@jhmigueles.com>
 Description: Set of functions to clean CGM signal as collected in the 
   EXTREME and the PREFIT-UP projects. Expected input files are csv or 
-  xlsx format with various file structures and missing values expected. 
+  xlsx format with various file structures and missing values expected.
+  The output is RData files including a data frame with two columns, i.e., 
+  timestamp and glucose in mg/dL.
 License: Apache License (>= 2)
 Encoding: UTF-8
 LazyData: true
