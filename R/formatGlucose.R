@@ -17,8 +17,17 @@ formatGlucose = function(data, glucCol = NULL) {
       }
       glucCol = glucCol[which.max(glucCol_lengths)]
     }
-    # remove header
+    # extract glucose in vector
     glucose = data[, glucCol]
+    # check if decimal sep is other than default
+    defaultSep = unlist(options("OutDec"))
+    fileSep = gsub('[[:digit:]]+', '', glucose[1])
+    if (nchar(fileSep) == 1) {
+      if (fileSep != defaultSep) {
+        glucose = gsub(fileSep, defaultSep, glucose)
+      }
+    }
+    # remove header
     if (is.na(as.numeric(glucose[1])) &
         as.numeric(glucose[6]) == 250 &
         as.numeric(glucose[7]) == 70 &
