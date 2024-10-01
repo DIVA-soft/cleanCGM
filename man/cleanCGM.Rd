@@ -10,6 +10,7 @@ cleanCGM(
   timeCol = NULL,
   glucCol = NULL,
   typeCol = NULL,
+  suffix = NULL,
   verbose = TRUE
 )
 }
@@ -23,6 +24,8 @@ cleanCGM(
 \item{glucCol}{Character. Name of the column with the glucose information.}
 
 \item{typeCol}{Character. Name of the column with the type of registry information (usually scan or measure).}
+
+\item{suffix}{Character. Suffix to be added to the filename of the output file to be saved.}
 
 \item{verbose}{Logical. Whether to print progress messages in the console.}
 }

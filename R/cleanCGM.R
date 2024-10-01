@@ -6,12 +6,14 @@
 #' @param glucCol Character. Name of the column with the glucose information.
 #' @param typeCol Character. Name of the column with the type of registry information (usually scan or measure).
 #' @param verbose Logical. Whether to print progress messages in the console.
+#' @param suffix Character. Suffix to be added to the filename of the output file to be saved.
 #'
 #' @return Does not return any object, it saves time series files in the output folder.
 #' @export
 #'
 cleanCGM = function(datadir = NULL, outputdir = NULL,
                     timeCol = NULL, glucCol = NULL, typeCol = NULL,
+                    suffix = NULL,
                     verbose = TRUE) {
 
   # rm(list = ls())
@@ -37,15 +39,15 @@ cleanCGM = function(datadir = NULL, outputdir = NULL,
   FILES = dir(datadir, full.names = TRUE)
 
   # extract IDs from filenames
-  ids = c()
+  IDs = data.frame(filename = FILES, id = NA)
   for (i in 1:length(FILES)) {
     id_unlist = unlist(strsplit(basename(FILES[i]), split = "_"))
     id = id_unlist[2]
     if (suppressWarnings(is.na(as.numeric(id))) &
         !grepl("ASP|MG|NF|NVS", id)) id = id_unlist[1]
-    ids[i] = id
+    IDs[i, 2] = id
   }
-  ids = unique(ids)
+  ids = unique(IDs$id)
 
   # back up of typeCol
   typeCol_bu = typeCol
@@ -53,13 +55,9 @@ cleanCGM = function(datadir = NULL, outputdir = NULL,
   # loop through ids
   for (i in 1:length(ids)) {
     id = ids[i]
-    # if (id == "282") browser()
     if (verbose) cat(id, " ")
-
     # files to read -----
-    files2read = grep(id, FILES, value = TRUE)
-    if (length(files2read) > 2) stop("Revise id = ", id)
-
+    files2read = IDs$filename[which(IDs$id == id)]
     # 1 - read CGM file/s
     data = as.data.frame(readCGM(files = files2read))
     if (nrow(data) < 10) {
@@ -82,7 +80,9 @@ cleanCGM = function(datadir = NULL, outputdir = NULL,
     if (is.null(typeCol)) {
       typeCol = grep("type|tipo", colnames(data),
                      ignore.case = TRUE, value = TRUE)
-      typeCol = typeCol[-grep("evento", typeCol)]
+      if (grepl("evento", typeCol)) {
+        typeCol = typeCol[-grep("evento", typeCol)]
+      }
     }
     # categories
     if (length(typeCol) > 0) {
@@ -107,7 +107,7 @@ cleanCGM = function(datadir = NULL, outputdir = NULL,
     tsDir = file.path(outputdir, "time series")
     if (!dir.exists(scansDir)) dir.create(scansDir)
     if (!dir.exists(tsDir)) dir.create(tsDir)
-
+    if (!is.null(suffix)) id = paste0(id, suffix)
     save(SCANS, file = file.path(scansDir, paste0(id, ".RData")))
     save(TS, file = file.path(tsDir, paste0(id, ".RData")))
   }

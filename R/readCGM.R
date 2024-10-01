@@ -54,9 +54,17 @@ readCGM = function(files) {
       stop(paste0("Format ", format, " not supported at the moment"))
     }
   }
-
+  # indices for rbinding
+  inds = 1
+  if (length(datasets) > 1) {
+    t0 = c()
+    for (i in 1:length(datasets)) {
+      t0 = c(t0,formatTime(head(datasets[[i]], 1)))
+    }
+    inds = order(as.Date(substr(t0, 1, 10)))
+  }
   # rbind datasets
-  DAT = do.call("rbind", datasets)
+  DAT = do.call("rbind", datasets[inds])
 
   return(DAT)
 }

@@ -16,7 +16,9 @@ formatTime = function(data, timeCol = NULL) {
       for (timeCol_i in 1:length(timeCol)) {
         timeCol_class[timeCol_i] = class(data[, timeCol[timeCol_i]])[1]
       }
-      timeCol = timeCol[which(timeCol_class == "POSIXct")]
+      if (any(timeCol_class == "POSIXct")) {
+        timeCol = timeCol[which(timeCol_class == "POSIXct")]
+      }
     }
     if (length(timeCol) > 1) {
       # keep the one with more distinct values
@@ -29,13 +31,17 @@ formatTime = function(data, timeCol = NULL) {
   }
   if (is.numeric(data[, timeCol])) {
     timestamp = as.POSIXct(data[, timeCol]*86400,
-                                        origin = "1899-12-30",tz = "GMT")
+                           origin = "1899-12-30",tz = "GMT")
   } else if (is.character(data[, timeCol])) {
     timestamp = strptime(data[, timeCol],
-                                      format = "%d/%m/%Y %H:%M", tz = "GMT")
+                         format = "%d/%m/%Y %H:%M", tz = "GMT")
     if (all(is.na(timestamp))) {
       timestamp = strptime(data[, timeCol],
                            format = "%Y/%m/%d %H:%M", tz = "GMT")
+    }
+    if (all(is.na(timestamp))) {
+      timestamp = strptime(data[, timeCol],
+                           format = "%d-%m-%Y %H:%M", tz = "GMT")
     }
   } else if ("POSIXct" %in% class(data[, timeCol])) {
     timestamp = data[, timeCol]
