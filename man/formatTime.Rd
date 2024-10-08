@@ -4,12 +4,16 @@
 \alias{formatTime}
 \title{Formats timestamp in a consistent manner}
 \usage{
-formatTime(data, timeCol = NULL)
+formatTime(data, timeCol = NULL, ts_indices = NULL, scan_indices = NULL)
 }
 \arguments{
 \item{data}{data frame read by readCGM}
 
 \item{timeCol}{Character. Name of the column with the timestamp.}
+
+\item{ts_indices}{Rows in data containing the actual time series.}
+
+\item{scan_indices}{Rows in data containing scans information.}
 }
 \value{
 timestamp formatted

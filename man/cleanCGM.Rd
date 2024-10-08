@@ -10,7 +10,7 @@ cleanCGM(
   timeCol = NULL,
   glucCol = NULL,
   typeCol = NULL,
-  suffix = NULL,
+  suffix = "",
   verbose = TRUE
 )
 }

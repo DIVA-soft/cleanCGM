@@ -59,9 +59,16 @@ readCGM = function(files) {
   if (length(datasets) > 1) {
     t0 = c()
     for (i in 1:length(datasets)) {
-      t0 = c(t0,formatTime(head(datasets[[i]], 1)))
+      t0 = c(t0,as.POSIXct(formatTime(head(datasets[[i]], 1))$timestamp))
     }
-    inds = order(as.Date(substr(t0, 1, 10)))
+    inds = order(t0)
+    for (i in 1:length(datasets)) {
+      datasets[[i]]$file_nr = inds[i]
+      datasets[[i]]$filename = basename(files[i])
+    }
+  } else {
+    datasets[[1]]$file_nr = 1
+    datasets[[1]]$filename = basename(files[i])
   }
   # rbind datasets
   DAT = do.call("rbind", datasets[inds])
